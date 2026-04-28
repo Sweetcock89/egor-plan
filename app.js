@@ -81,8 +81,9 @@ const data = {
   ]
 };
 
-const days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
-document.getElementById('date-display').textContent = `${days[new Date().getDay()]} | ${new Date().toLocaleDateString()}`;
+const dayNames = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const shortDays = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+document.getElementById('date-display').textContent = `${shortDays[new Date().getDay()]} | ${new Date().toLocaleDateString()}`;
 
 // Табы
 document.querySelectorAll('.tab').forEach(btn => {
@@ -110,18 +111,22 @@ function render(tab) {
       main.innerHTML += `<div class="card"><div class="row"><b>${item.name}</b><span>${item.dose} | ${item.when}</span></div></div>`;
     });
   } else if (tab === 'workout') {
-    const day = new Date().getDay();
-    const workout = data.workouts[day];
+    const today = new Date().getDay();
+    const tomorrow = (today + 1) % 7;
     
-    if (workout) {
+    // СЕГОДНЯ
+    const todayWorkout = data.workouts[today];
+    main.innerHTML += `<h3 style="margin-bottom:12px;color:#4f8cff">📅 Сегодня (${dayNames[today]})</h3>`;
+    
+    if (todayWorkout) {
       main.innerHTML += `
         <div class="card">
-          <h3>${workout.name}</h3>
-          ${workout.note ? `<p style="color:#4f8cff;margin-bottom:12px">${workout.note}</p>` : ''}
+          <h3>${todayWorkout.name}</h3>
+          ${todayWorkout.note ? `<p style="color:#4f8cff;margin-bottom:12px">${todayWorkout.note}</p>` : ''}
         </div>
       `;
       
-      workout.exercises.forEach((ex, idx) => {
+      todayWorkout.exercises.forEach((ex, idx) => {
         main.innerHTML += `
           <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -139,7 +144,7 @@ function render(tab) {
         `;
       });
     } else {
-      main.innerHTML = `
+      main.innerHTML += `
         <div class="card">
           <h3>💤 День отдыха</h3>
           <p style="margin:12px 0">Сегодня восстановительный день.</p>
@@ -147,6 +152,46 @@ function render(tab) {
         </div>
       `;
     }
+    
+    // ЗАВТРА
+    const tomorrowWorkout = data.workouts[tomorrow];
+    main.innerHTML += `<h3 style="margin:24px 0 12px 0;color:#34c759">👉 Завтра (${dayNames[tomorrow]})</h3>`;
+    
+    if (tomorrowWorkout) {
+      main.innerHTML += `
+        <div class="card" style="border-left:4px solid #34c759">
+          <h3>${tomorrowWorkout.name}</h3>
+          ${tomorrowWorkout.note ? `<p style="color:#4f8cff;margin-bottom:12px">${tomorrowWorkout.note}</p>` : ''}
+          <p style="color:#888;margin-top:8px">Упражнений: <b>${tomorrowWorkout.exercises.length}</b></p>
+        </div>
+      `;
+      
+      tomorrowWorkout.exercises.forEach((ex, idx) => {
+        main.innerHTML += `
+          <div class="card" style="border-left:4px solid #34c759;opacity:0.9">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <b style="color:#34c759">${idx + 1}. ${ex.name}</b>
+            </div>
+            <div class="row">
+              <span>Подходы: <b>${ex.sets}</b></span>
+              <span>Повторы: <b>${ex.reps}</b></span>
+            </div>
+            <div class="row">
+              <span>Вес: <b>${ex.weight}</b></span>
+              <span>Отдых: <b>${ex.rest}</b></span>
+            </div>
+          </div>
+        `;
+      });
+    } else {
+      main.innerHTML += `
+        <div class="card" style="border-left:4px solid #34c759">
+          <h3>💤 День отдыха</h3>
+          <p style="margin:12px 0">Завтра тоже восстановительный день.</p>
+        </div>
+      `;
+    }
+    
   } else if (tab === 'track') {
     main.innerHTML = `
       <div class="card">
